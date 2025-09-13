@@ -12,9 +12,7 @@ def main():
         calculate_data.calculate_long_MA(individual_data)
         calculated_data = calculate_data.crossover(individual_data)
         portfolio_data[stock] = calculated_data
-        holdings = backtest.initialize_portfolio(portfolio_data)
-        print(holdings)
-        #backtest.simulate_portfolio(portfolio_data, holdings)
+        print(backtest.simulate_portfolio(portfolio_data))
 main()
 
 

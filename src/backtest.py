@@ -1,25 +1,26 @@
 import pandas as pd
-
-# ticker_data is a dictionary of dataframes ticker symbol: dataframe
-portfolio_value = pd.DataFrame(columns =['Date', 'Portfolio Value'])
-trade_log = []
-cash = 11,000
-
-def initialize_portfolio(ticker_data): 
+    
+def simulate_portfolio(ticker_data): 
+    pv_history = []
+    trade_log = []
+    cash = 11000
     holdings = {}
     for ticker in ticker_data.keys(): 
         holdings[ticker] = 0
-    return holdings
-    
-def simulate_portfolio(ticker_data, holdings, portfolio_data): 
+
     control = next(iter(ticker_data.values()))
     dates = control.index
 
     for date in dates: 
         for symbol, ticker in ticker_data.items(): 
+            ticker = ticker.sort_index()
+            ticker = ticker[~ticker.index.duplicated(keep='first')]
             buy_signal = ticker.loc[date, 'Buy Signal']
+            buy_signal = buy_signal.item()
             sell_signal = ticker.loc[date, 'Sell Signal']
+            sell_signal = sell_signal.item()
             price = ticker.loc[date, 'Close']
+            price = price.item()
             if (sell_signal == True) and (holdings[symbol] > 0):
                 shares = holdings[symbol]
                 cash += (shares * price)
@@ -29,13 +30,12 @@ def simulate_portfolio(ticker_data, holdings, portfolio_data):
                 shares = 1000 // price
                 holdings[symbol] = shares
                 remaining = 1000 - (shares * price)
-                cash += remaining
+                cash = (cash - 1000) + remaining 
                 log_trade(trade_log, date, symbol, "Buy", price, shares, cash, holdings, ticker_data)
+        pv_history.append((date, cash + sum(holdings[symbol] * price)))
 
-        portfolio_data['Date'] = date
-        portfolio_data['Portfolio Value'] = cash + sum(holdings[ticker] * price)
-
-    return portfolio_data
+    return (pd.DataFrame(trade_log), 
+            pd.DataFrame(pv_history, columns =['Date', 'Portfolio Value']))
             
         
                 
@@ -54,6 +54,4 @@ def log_trade(trade_log, date, symbol, action, price, shares, cash, holdings, ti
         "Holdings": total_holdings,
         "Portfolio Value": trade_pv,
     })
-
-    return trade_log
     
