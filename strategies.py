@@ -1,13 +1,12 @@
-"""
-File: strategies.py
-Purpose: This file will apply all strategies to each asset.
-"""
+import pandas as pd
 
-def buyAndHold(asset):
-    beg = asset.iloc[0]
-    begP = beg["Close"]
-    end = asset.iloc[-1]
-    endP = end.iloc["Close"]
+def baseline(data): 
 
-    totalReturn = (endP - begP) / begP
-    return totalReturn
+    # Create Baseline Pos Series
+    dates = data.index
+    baseline_series = pd.Series(1, index=dates)
+
+    return baseline_series
+
+
+
